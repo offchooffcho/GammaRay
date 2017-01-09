@@ -286,11 +286,17 @@ if(Qt5Core_FOUND)
   )
   find_package(Qt5Scxml 5.8 NO_MODULE QUIET)
 
+  # Enable override warnings starting with Qt 5.5
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND Qt5Core_VERSION VERSION_LESS 5.5)
     # disable warnings about inconsistent usage of 'override' specifier for Qt <5.5
     # only starting with 5.5 Qt started to use 'override' throughout the code base
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override")
   endif()
+  if (CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.1.0" AND Qt5Core_VERSION VERSION_GREATER 5.8)
+    # Q_OBJECT macro is not -Wsuggest-override ready until qtbase.git commit 4790ccfa7a7dcdaf5b1c3c3f71bd333a6d754fba
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-override" )
+  endif()
+
   if (Qt5Core_VERSION VERSION_GREATER 5.7)
     # Qt 5.8 is the first minor version to use nullptr more broadly
     # With versions below Qt might lots of warnings for -Wzero-as-null-pointer-constant, e.g.:
